@@ -58,7 +58,7 @@ button { font: inherit; color: inherit; }
 #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; pointer-events: none; display: block; }
 body { position: relative; }
 .hero { min-height: min(78vh, 640px); }
-.greeter { position: relative; display: flex; flex-direction: column; align-items: center; justify-self: center; width: 100%; max-width: 360px; }
+.greeter { position: relative; display: flex; flex-direction: column; align-items: center; justify-self: center; width: 100%; max-width: 470px; }
 .greeter .orbit { position: absolute; left: 50%; top: 46%; width: 118%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
   border: 1.5px dashed rgba(167, 139, 250, 0.55); animation: spin 30s linear infinite; z-index: 0; }
 .greeter .orbit::after { content: ""; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 14px #22d3ee; }
@@ -77,13 +77,13 @@ body { position: relative; }
   box-shadow: 0 8px 28px rgba(12, 8, 32, 0.6); animation: float 5s ease-in-out infinite;
 }
 .chip svg { width: 18px; height: 18px; flex: none; }
-.chip.c1 { right: -8%; top: 30%; color: #67e8f9; }
-.chip.c2 { left: -12%; top: 58%; color: #f9a8d4; animation-delay: -1.7s; }
-.chip.c3 { right: -2%; top: 74%; color: #c4b5fd; animation-delay: -3.2s; }
+.chip.c1 { right: -6%; top: 6%; color: #67e8f9; }
+.chip.c2 { left: -10%; top: 66%; color: #f9a8d4; animation-delay: -1.7s; }
+.chip.c3 { right: -8%; top: 70%; color: #c4b5fd; animation-delay: -3.2s; }
 @keyframes float { 50% { transform: translateY(-10px); } }
 .greeter svg.lady { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 24px rgba(90, 10, 50, 0.22)); animation: sway 6s ease-in-out infinite; transform-origin: 50% 100%; }
 .bubble {
-  position: absolute; top: 3%; right: 70%; z-index: 3; width: max-content; max-width: 210px;
+  position: absolute; top: 2%; right: 74%; z-index: 3; width: max-content; max-width: 210px;
   background: rgba(23, 16, 52, 0.85); color: var(--ink); border: 1.5px solid #a78bfa; border-radius: 18px 18px 4px 18px; backdrop-filter: blur(8px);
   padding: 10px 14px; font-weight: 700; line-height: 1.3; box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
   animation: pop 0.7s ease-out 0.4s both;
@@ -187,10 +187,10 @@ footer b { color: var(--ink); }
 @media (max-width: 860px) {
   .hero { grid-template-columns: minmax(0, 1fr); padding-top: 10px; }
   .hero { min-height: 0; }
-  .greeter { order: -1; max-width: 190px; }
+  .greeter { order: -1; max-width: 290px; }
   .greeter { padding-top: 58px; }
   .chip { font-size: 0.76rem; padding: 6px 9px; }
-  .chip.c1 { right: -26%; } .chip.c2 { left: -26%; } .chip.c3 { right: -22%; }
+  .chip.c1 { right: -6%; top: 44%; } .chip.c2 { left: -6%; top: 70%; } .chip.c3 { right: -6%; top: 80%; }
   .floor { top: 520px; }
   .bubble { top: 0; right: auto; left: 50%; translate: -50% 0; width: max-content; max-width: calc(100vw - 40px); flex-wrap: wrap; justify-content: center; text-align: center; font-size: 0.9rem; padding: 7px 12px; border-radius: 16px 16px 16px 16px; display: flex; gap: 6px; align-items: baseline; }
   .bubble b { font-size: 1.1rem; }
@@ -237,7 +237,7 @@ footer b { color: var(--ink); }
       <div class="greeter" id="greeter">
         <p class="bubble"><b data-t="greetA">Namaste!</b><span data-t="greetB">Welcome to AI Saathi</span></p>
         <span class="halo" aria-hidden="true"></span><span class="orbit" aria-hidden="true"></span><span class="orbit two" aria-hidden="true"></span>
-        <img class="lady-img" src="img/saathi-lady.webp" width="900" height="1493" alt="An Indian woman in a royal violet silk saree with gold border, greeting you with folded hands">
+        <img class="lady-img" src="img/saathi-duo.webp" width="1000" height="1073" alt="A young Indian woman in a violet silk saree and a young man in a Nehru jacket, both greeting you with folded hands">
         <span class="chip c1" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg><span data-t="chip1">Job check</span></span>
         <span class="chip c2" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path></svg><span data-t="chip2">Speak English</span></span>
         <span class="chip c3" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path></svg><span data-t="chip3">100% free</span></span>
