@@ -274,7 +274,7 @@ footer b { color: var(--ink); }
           <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
           <h3 data-t="t3h">Your idea here</h3>
           <p data-t="t3p">New free tools are on the way. Tell us what would help you, your family or your community.</p>
-          <a class="btn ghost" href="https://wa.me/?text=Idea%20for%20AI%20Saathi%3A%20" target="_blank" rel="noopener" data-t="t3b">Suggest a tool</a>
+          <a class="btn ghost" id="ideaLink" href="https://wa.me/919051624928?text=Hi!%20My%20idea%20for%20a%20new%20AI%20Saathi%20tool%3A%20" target="_blank" rel="noopener" data-t="t3b">Suggest a tool</a>
         </article>
       </div>
     </section>
@@ -695,7 +695,7 @@ footer b { color: var(--ink); }
       h2t: "Use your own free account", h2d: "Sign in to Claude with a free account. Your use comes from your own account, so there is nothing to pay us.",
       h3t: "Learn and share", h3d: "Save your result or report card and share it with friends who could use it too.",
       shareH: "Help someone get ahead", shareP: "AI Saathi grows when people share it. Send it to a friend, a family WhatsApp group or your team.",
-      shareB: "Share on WhatsApp", shareText: "Free AI tools for everyday people: AI Saathi",
+      shareB: "Share on WhatsApp", shareText: "Your free AI saathi for work and life: AI Saathi", ideaText: "Hi! My idea for a new AI Saathi tool: ",
       foot1: "Made by Ramit Paul, Microsoft MVP",
       foot2: "Results from these tools are guidance from an AI model, not professional advice. Don't type names or confidential details."
     },
@@ -716,7 +716,7 @@ footer b { color: var(--ink); }
       h2t: "अपना मुफ़्त अकाउंट इस्तेमाल करें", h2d: "मुफ़्त अकाउंट से Claude में साइन इन करें। इस्तेमाल आपके अपने अकाउंट से होता है, इसलिए हमें कुछ नहीं देना।",
       h3t: "सीखें और शेयर करें", h3d: "अपना रिज़ल्ट या रिपोर्ट कार्ड सेव करें और उन दोस्तों के साथ शेयर करें जिन्हें इससे मदद मिल सकती है।",
       shareH: "किसी को आगे बढ़ने में मदद करें", shareP: "AI Saathi तब बढ़ता है जब लोग इसे शेयर करते हैं। इसे किसी दोस्त, परिवार के WhatsApp ग्रुप या अपनी टीम को भेजें।",
-      shareB: "WhatsApp पर शेयर करें", shareText: "हर किसी के लिए मुफ़्त AI टूल्स: AI Saathi",
+      shareB: "WhatsApp पर शेयर करें", shareText: "काम और ज़िंदगी के लिए आपका मुफ़्त AI साथी: AI Saathi", ideaText: "नमस्ते! AI Saathi के नए टूल के लिए मेरा आइडिया: ",
       foot1: "Ramit Paul, Microsoft MVP द्वारा बनाया गया",
       foot2: "इन टूल्स के नतीजे AI मॉडल का मार्गदर्शन हैं, पेशेवर सलाह नहीं। नाम या गोपनीय जानकारी न लिखें।"
     },
@@ -737,7 +737,7 @@ footer b { color: var(--ink); }
       h2t: "Usa tu propia cuenta gratis", h2d: "Inicia sesión en Claude con una cuenta gratis. El uso sale de tu propia cuenta, así que no nos pagas nada.",
       h3t: "Aprende y comparte", h3d: "Guarda tu resultado o tu boletín y compártelo con amigos a quienes también les pueda servir.",
       shareH: "Ayuda a alguien a salir adelante", shareP: "AI Saathi crece cuando la gente lo comparte. Envíalo a un amigo, al grupo de WhatsApp de la familia o a tu equipo.",
-      shareB: "Compartir por WhatsApp", shareText: "Herramientas de IA gratis para todo el mundo: AI Saathi",
+      shareB: "Compartir por WhatsApp", shareText: "Tu saathi de IA gratis para el trabajo y la vida: AI Saathi", ideaText: "¡Hola! Mi idea para una nueva herramienta de AI Saathi: ",
       foot1: "Creado por Ramit Paul, Microsoft MVP",
       foot2: "Los resultados de estas herramientas son orientación de un modelo de IA, no asesoramiento profesional. No escribas nombres ni datos confidenciales."
     }
@@ -750,6 +750,7 @@ footer b { color: var(--ink); }
     document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang)); });
     var url = /^https?:/.test(location.href) && !/claude\.ai|claudeusercontent/.test(location.host) ? location.href.split("#")[0] : "";
     document.getElementById("waShare").href = "https://wa.me/?text=" + encodeURIComponent(T[lang].shareText + (url ? " " + url : ""));
+    document.getElementById("ideaLink").href = "https://wa.me/919051624928?text=" + encodeURIComponent(T[lang].ideaText);
     try { localStorage.setItem("talk-lang", lang); } catch (e) {}
   }
   document.querySelectorAll(".langs button").forEach(function (b) {
