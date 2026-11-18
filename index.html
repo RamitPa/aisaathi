@@ -55,7 +55,7 @@ button { font: inherit; color: inherit; }
   background-image: linear-gradient(rgba(139, 92, 246, 0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.45) 1px, transparent 1px);
   background-size: 48px 48px; animation: floor 3s linear infinite; }
 @keyframes floor { to { background-position: 0 48px; } }
-#bg { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; pointer-events: none; display: block; }
+#bg { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; pointer-events: none; display: block; mix-blend-mode: screen; }
 .greeter .bubble, .greeter .chip { pointer-events: none; }
 body { position: relative; }
 .hero { min-height: min(78vh, 640px); }
@@ -142,6 +142,7 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; line
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   display: flex; flex-direction: column; gap: 12px;
 }
+.tool { background-image: radial-gradient(400px circle at var(--gx, 50%) var(--gy, 0%), rgba(139, 92, 246, 0.16), transparent 60%); }
 .tool:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 12px 40px rgba(139, 92, 246, 0.28); }
 .tool .ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
 .tool .ico svg { width: 28px; height: 28px; }
@@ -305,6 +306,12 @@ footer b { color: var(--ink); }
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 /* 3D background: a turning globe of people (points) joined by lines, sparks travelling between them, an AI core in the middle. */
 (function () {
@@ -371,15 +378,28 @@ footer b { color: var(--ink); }
   var inner = new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 0), innerMat); world.add(inner);
 
   // ---------- Saathi, the AI statue ----------
-  scene.add(new THREE.AmbientLight(0xb9a8ff, 0.55));
-  var key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(4, 8, 12); scene.add(key);
+  scene.add(new THREE.AmbientLight(0xb9a8ff, 0.3));
+  var key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(4, 8, 12); scene.add(key);
   var rimC = new THREE.PointLight(0x22d3ee, 1.6, 60); rimC.position.set(-10, 2, 6); scene.add(rimC);
   var rimP = new THREE.PointLight(0xf472d0, 1.4, 60); rimP.position.set(10, -2, 6); scene.add(rimP);
-  var shell = new THREE.MeshStandardMaterial({ color: 0xefeaff, metalness: 0.35, roughness: 0.22 });
-  var violet = new THREE.MeshStandardMaterial({ color: 0x7c3aed, metalness: 0.55, roughness: 0.28, emissive: 0x2a0d6b, emissiveIntensity: 0.35 });
-  var visorM = new THREE.MeshStandardMaterial({ color: 0x0d0726, metalness: 0.85, roughness: 0.12 });
-  var glowC = new THREE.MeshBasicMaterial({ color: 0x22d3ee });
-  var glowP = new THREE.MeshBasicMaterial({ color: 0xf472d0 });
+  try {
+    var envScene = new THREE.Scene();
+    var envBox = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 40), new THREE.MeshBasicMaterial({ color: 0x1a0d40, side: THREE.BackSide }));
+    envScene.add(envBox);
+    [[0x8b5cf6, [0, 14, 10], [30, 6]], [0x22d3ee, [-18, 2, 6], [6, 22]], [0xf472d0, [18, -2, 6], [6, 22]], [0xffffff, [0, 18, -4], [16, 3]], [0x6d28d9, [0, -16, 0], [30, 30]]].forEach(function (L) {
+      var pl = new THREE.Mesh(new THREE.PlaneGeometry(L[2][0], L[2][1]), new THREE.MeshBasicMaterial({ color: L[0], side: THREE.DoubleSide }));
+      pl.position.set(L[1][0], L[1][1], L[1][2]); pl.lookAt(0, 0, 0); envScene.add(pl);
+    });
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(envScene, 0.03).texture;
+  } catch (e) {}
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.82;
+  var shell = new THREE.MeshStandardMaterial({ color: 0xc9bdf5, metalness: 0.7, roughness: 0.16, envMapIntensity: 0.9 });
+  var violet = new THREE.MeshStandardMaterial({ color: 0x7c3aed, metalness: 0.8, roughness: 0.2, emissive: 0x2a0b70, emissiveIntensity: 0.3, envMapIntensity: 1.0 });
+  var visorM = new THREE.MeshStandardMaterial({ color: 0x0b0620, metalness: 0.95, roughness: 0.05, envMapIntensity: 2.0 });
+  var glowC = new THREE.MeshBasicMaterial({ color: 0x5eead4 }); glowC.color.multiplyScalar(1.4);
+  var glowP = new THREE.MeshBasicMaterial({ color: 0xf472d0 }); glowP.color.multiplyScalar(1.3);
   var robot = new THREE.Group(); world.add(robot);
   function limb(a, b, r, mat) {
     var dir = new THREE.Vector3().subVectors(b, a), len = dir.length();
@@ -434,6 +454,23 @@ footer b { color: var(--ink); }
   // halo rings around the statue
   var halo1 = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.05, 8, 120), glowC); halo1.rotation.x = Math.PI / 2.3; robot.add(halo1);
   var halo2 = new THREE.Mesh(new THREE.TorusGeometry(5.4, 0.04, 8, 120), glowP); halo2.rotation.x = Math.PI / 1.8; halo2.rotation.y = 0.5; robot.add(halo2);
+  var scanMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false });
+  var scan = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.05, 8, 96), scanMat); scan.rotation.x = Math.PI / 2; robot.add(scan);
+  var discMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.08, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+  var scanDisc = new THREE.Mesh(new THREE.CircleGeometry(2.5, 64), discMat); scanDisc.rotation.x = -Math.PI / 2; robot.add(scanDisc);
+  var streamN = isPhone ? 90 : 180, streamPts = [], streamSpeed = [];
+  for (var q = 0; q < streamN; q++) {
+    var ang = Math.random() * Math.PI * 2, rad = 3.2 + Math.random() * 2.6;
+    streamPts.push(new THREE.Vector3(Math.cos(ang) * rad, -6 + Math.random() * 13, Math.sin(ang) * rad));
+    streamSpeed.push(0.8 + Math.random() * 1.8);
+  }
+  var streamGeo = new THREE.BufferGeometry().setFromPoints(streamPts);
+  var streamMat = new THREE.PointsMaterial({ size: 0.32, map: dot, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: 0x67e8f9 });
+  var stream = new THREE.Points(streamGeo, streamMat); robot.add(stream);
+  // soft floor glow under the pedestal
+  var glowTex = (function () { var c = document.createElement("canvas"); c.width = c.height = 128; var x = c.getContext("2d"); var g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, "rgba(139,92,246,0.9)"); g.addColorStop(1, "rgba(139,92,246,0)"); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+  var floorGlow = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  floorGlow.rotation.x = -Math.PI / 2; floorGlow.position.y = -6.8; robot.add(floorGlow);
   robot.position.y = 0.6;
   var spin = 0, spinV = 0;
   function startSpin() { if (spinV === 0) spinV = Math.PI * 2; }
@@ -470,6 +507,16 @@ footer b { color: var(--ink); }
   } catch (e) {}
 
   var greeter = document.getElementById("greeter"), hero = document.querySelector(".hero");
+  var composer = null, bloom = null;
+  try {
+    if (THREE.EffectComposer && THREE.UnrealBloomPass) {
+      renderer.setClearColor(0x000000, 1);
+      composer = new THREE.EffectComposer(renderer);
+      composer.addPass(new THREE.RenderPass(scene, camera));
+      bloom = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), isPhone ? 0.55 : 0.7, 0.45, 0.72);
+      composer.addPass(bloom);
+    }
+  } catch (e) { composer = null; renderer.setClearColor(0x000000, 0); }
   function resize() {
     var w = document.documentElement.clientWidth;
     isPhone = w < 860;
@@ -477,6 +524,7 @@ footer b { color: var(--ink); }
     var h = Math.max(heroBottom + 60, Math.min(window.innerHeight, 900));
     canvas.style.height = h + "px";
     renderer.setSize(w, h, false);
+    if (composer) { composer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5)); composer.setSize(w, h); if (bloom) bloom.setSize(Math.round(w / 2), Math.round(h / 2)); }
     camera.aspect = w / h; camera.updateProjectionMatrix();
     var halfH0 = Math.tan(camera.fov * Math.PI / 360) * camera.position.z, halfW0 = halfH0 * camera.aspect;
     if (greeter) {
@@ -500,6 +548,12 @@ footer b { color: var(--ink); }
   var tx = 0, ty = 0, mx = 0, my = 0, scrollY = 0;
   window.addEventListener("pointermove", function (e) { tx = (e.clientX / window.innerWidth - 0.5); ty = (e.clientY / window.innerHeight - 0.5); }, { passive: true });
   window.addEventListener("scroll", function () { scrollY = window.scrollY || 0; }, { passive: true });
+  if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function") {
+    window.addEventListener("deviceorientation", function (e) {
+      if (e.gamma == null) return;
+      tx = Math.max(-0.5, Math.min(0.5, e.gamma / 60)); ty = Math.max(-0.5, Math.min(0.5, (e.beta - 40) / 80));
+    }, { passive: true });
+  }
 
   var running = true;
   document.addEventListener("visibilitychange", function () { running = !document.hidden; if (running && !reduce) requestAnimationFrame(loop); });
@@ -524,6 +578,11 @@ footer b { color: var(--ink); }
     var pulse2 = 0.75 + Math.sin(t * 3) * 0.25; antBall.scale.setScalar(pulse2); heart.scale.setScalar(0.85 + Math.sin(t * 2.2) * 0.15);
     halo1.rotation.z += dt * 0.4; halo2.rotation.z -= dt * 0.3;
     pedRing.scale.setScalar(1 + Math.sin(t * 2) * 0.03);
+    var sy = -5.6 + ((t * 2.2) % 11); scan.position.y = sy; scanDisc.position.y = sy;
+    var sr = sy > 0 ? 2.5 : 2.5 - (sy + 5.6) * 0.04; scan.scale.setScalar(sr / 2.5); scanDisc.scale.setScalar(sr / 2.5);
+    var sa = streamGeo.attributes.position.array;
+    for (var k = 0; k < streamN; k++) { sa[k * 3 + 1] += dt * streamSpeed[k]; if (sa[k * 3 + 1] > 7) sa[k * 3 + 1] = -6; }
+    streamGeo.attributes.position.needsUpdate = true;
     var pulse = 1 + Math.sin(now * 0.0016) * 0.06; inner.scale.setScalar(pulse);
     var arr = sparkGeo.attributes.position.array;
     sparks.forEach(function (sp, i) {
@@ -534,11 +593,25 @@ footer b { color: var(--ink); }
     });
     sparkGeo.attributes.position.needsUpdate = true;
     dustPts.rotation.y -= dt * 0.01;
-    renderer.render(scene, camera);
+    if (composer) composer.render(); else renderer.render(scene, camera);
   }
   function loop(now) { if (!running) return; frame(now); requestAnimationFrame(loop); }
   if (reduce) { frame(performance.now()); window.addEventListener("resize", function () { frame(performance.now()); }); }
   else requestAnimationFrame(loop);
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !window.matchMedia("(hover: hover)").matches) return;
+  document.querySelectorAll(".tool, .how li").forEach(function (card) {
+    card.addEventListener("pointermove", function (e) {
+      var r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = "perspective(800px) rotateX(" + (-y * 10).toFixed(2) + "deg) rotateY(" + (x * 12).toFixed(2) + "deg) translateY(-4px)";
+      card.style.setProperty("--gx", (x + 0.5) * 100 + "%"); card.style.setProperty("--gy", (y + 0.5) * 100 + "%");
+    });
+    card.addEventListener("pointerleave", function () { card.style.transform = ""; });
+  });
 })();
 </script>
 <script>
