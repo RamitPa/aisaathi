@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Saathi</title>
+<meta name="description" content="Free AI tools for everyday people: check how AI affects your job, practise speaking English, and more. In English, Hindi and Spanish.">
+<meta property="og:title" content="AI Saathi – free AI tools for everyday people">
+<meta property="og:description" content="Check how AI affects your job, practise speaking English out loud, and more. Free with your own Claude account.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a community noticeboard — a warm welcome, then tool cards pinned in a grid, then how it works and a share strip. */
+:root {
+  /* Layout idea: a night-violet AI world. The greeter stands in a glowing network; tools float on glass cards below. */
+  --paper: #0c0820;
+  --surface: #171034;
+  --ink: #f4f0ff;
+  --muted: #b9addd;
+  --line: #34296a;
+  --accent: #8b5cf6;
+  --accent-ink: #ffffff;
+  --accent-soft: #241a52;
+  --sun: #f472d0;
+  --sun-soft: #3a1740;
+  --peacock: #22d3ee;
+  --peacock-soft: #0e2d3a;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background:
+    radial-gradient(1200px 700px at 70% -10%, #2a1670 0%, transparent 60%),
+    linear-gradient(180deg, #120a30 0%, var(--paper) 55%, #0a0618 100%);
+  color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+a { color: #c4b5fd; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(70px); opacity: 0.55; }
+.aurora i { position: absolute; border-radius: 50%; }
+.aurora i:nth-child(1) { width: 46vw; height: 46vw; left: 50%; top: 5%; background: #7c3aed; animation: drift1 18s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { width: 36vw; height: 36vw; left: 10%; top: 40%; background: #0891b2; animation: drift2 22s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { width: 30vw; height: 30vw; left: 65%; top: 55%; background: #db2777; opacity: 0.7; animation: drift3 26s ease-in-out infinite alternate; }
+@keyframes drift1 { to { transform: translate(-12vw, 8vh) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(14vw, -10vh) scale(0.9); } }
+@keyframes drift3 { to { transform: translate(-16vw, -6vh) scale(1.2); } }
+.floor { position: absolute; left: 0; right: 0; top: min(78vh, 640px); height: 220px; z-index: 0; pointer-events: none; overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent); mask-image: linear-gradient(to bottom, #000, transparent); }
+.floor::before { content: ""; position: absolute; left: -50%; right: -50%; top: 0; height: 600px; transform-origin: 50% 0; transform: perspective(300px) rotateX(62deg);
+  background-image: linear-gradient(rgba(139, 92, 246, 0.45) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.45) 1px, transparent 1px);
+  background-size: 48px 48px; animation: floor 3s linear infinite; }
+@keyframes floor { to { background-position: 0 48px; } }
+#bg { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; pointer-events: none; display: block; }
+body { position: relative; }
+.hero { min-height: min(78vh, 640px); }
+.greeter { position: relative; display: flex; flex-direction: column; align-items: center; justify-self: center; width: 100%; max-width: 360px; }
+.greeter .orbit { position: absolute; left: 50%; top: 46%; width: 118%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  border: 1.5px dashed rgba(167, 139, 250, 0.55); animation: spin 30s linear infinite; z-index: 0; }
+.greeter .orbit::after { content: ""; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 14px #22d3ee; }
+.greeter .orbit.two { width: 96%; border-color: rgba(244, 114, 208, 0.4); animation-duration: 20s; animation-direction: reverse; }
+.greeter .orbit.two::after { background: #f472d0; box-shadow: 0 0 14px #f472d0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lady-img { position: relative; z-index: 1; width: 100%; height: auto; display: block;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent); mask-image: linear-gradient(to bottom, #000 78%, transparent);
+  animation: sway 6s ease-in-out infinite; transform-origin: 50% 100%; }
+.greeter .halo { position: absolute; left: 50%; top: 40%; width: 90%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; z-index: 0;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.55), rgba(34, 211, 238, 0.12) 55%, transparent 70%); }
+.chip {
+  position: absolute; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 14px;
+  background: rgba(23, 16, 52, 0.72); border: 1px solid rgba(167, 139, 250, 0.45); color: var(--ink);
+  font-size: 0.86rem; font-weight: 700; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 28px rgba(12, 8, 32, 0.6); animation: float 5s ease-in-out infinite;
+}
+.chip svg { width: 18px; height: 18px; flex: none; }
+.chip.c1 { right: -8%; top: 30%; color: #67e8f9; }
+.chip.c2 { left: -12%; top: 58%; color: #f9a8d4; animation-delay: -1.7s; }
+.chip.c3 { right: -2%; top: 74%; color: #c4b5fd; animation-delay: -3.2s; }
+@keyframes float { 50% { transform: translateY(-10px); } }
+.greeter svg.lady { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 24px rgba(90, 10, 50, 0.22)); animation: sway 6s ease-in-out infinite; transform-origin: 50% 100%; }
+.bubble {
+  position: absolute; top: 3%; right: 70%; z-index: 3; width: max-content; max-width: 210px;
+  background: rgba(23, 16, 52, 0.85); color: var(--ink); border: 1.5px solid #a78bfa; border-radius: 18px 18px 4px 18px; backdrop-filter: blur(8px);
+  padding: 10px 14px; font-weight: 700; line-height: 1.3; box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
+  animation: pop 0.7s ease-out 0.4s both;
+}
+.bubble b { display: block; font-family: var(--font-display); font-size: 1.35rem; color: #c4b5fd; }
+@keyframes sway { 0%, 100% { transform: rotate(-0.8deg) translateY(0); } 50% { transform: rotate(0.8deg) translateY(-4px); } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(0.9); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .greeter svg.lady, .bubble, .lady-img, .chip, .orbit, .aurora i, .floor::before, .hero h1 em, .status.live::before { animation: none; } }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; flex-wrap: wrap; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.logo svg { width: 40px; height: 40px; }
+.logo span { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.01em; }
+.langs { display: flex; gap: 6px; }
+.langs button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 13px;
+  font-size: 0.9rem; cursor: pointer;
+}
+.langs button[aria-pressed="true"] { background: #7c3aed; color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+
+/* Hero */
+.hero { padding: 28px 0 36px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.hero h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 14px; text-wrap: balance; letter-spacing: -0.02em; }
+.hero h1 em { font-style: normal; color: var(--accent);
+  background: linear-gradient(90deg, #a78bfa, #22d3ee, #f472d0, #a78bfa); background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 8s linear infinite; }
+@keyframes shimmer { to { background-position: 300% 0; } }
+.hero p { margin: 0 0 22px; color: var(--muted); max-width: 52ch; font-size: 1.08rem; }
+.ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700;
+  border-radius: 12px; padding: 12px 18px; border: 2px solid var(--accent);
+}
+.btn.primary { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #ffffff; border-color: #8b5cf6; box-shadow: 0 0 24px rgba(139, 92, 246, 0.45); }
+.btn.ghost { color: #c4b5fd; border-color: #6d5bd0; background: rgba(139, 92, 246, 0.08); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding: 0; list-style: none; }
+.facts li { background: rgba(23, 16, 52, 0.7); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 0.88rem; }
+.facts li b { color: #c4b5fd; }
+.circle { position: relative; aspect-ratio: 1; max-width: 360px; width: 100%; justify-self: center; }
+.circle svg { width: 100%; height: 100%; }
+
+/* Sections */
+section { padding: 26px 0; }
+.sechead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+.sechead p { margin: 0; color: var(--muted); }
+
+/* Tools */
+.tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.tool {
+  background: color-mix(in srgb, var(--surface) 72%, transparent); border: 1px solid var(--line); border-radius: 18px; padding: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tool:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 12px 40px rgba(139, 92, 246, 0.28); }
+.tool .ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.tool .ico svg { width: 28px; height: 28px; }
+.tool.sun .ico { background: var(--sun-soft); }
+.tool.peacock .ico { background: var(--peacock-soft); color: var(--peacock); }
+.tool.peacock .btn.primary { background: #0891b2; border-color: #0891b2; }
+.tool.sun .btn.primary { background: #db2777; border-color: #db2777; }
+.tool.sun .ico { color: var(--sun); }
+.tool h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; line-height: 1.15; margin: 0; }
+.tool h3 small { display: block; font-family: var(--font-body); font-weight: 700; font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.tool p { margin: 0; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.tags li { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; background: var(--paper); border-radius: 6px; padding: 2px 8px; color: var(--muted); }
+.tool .btn { margin-top: auto; justify-content: center; }
+.tool.soon { background: transparent; border-style: dashed; }
+.tool.soon .ico { background: var(--surface); color: var(--muted); }
+.status { align-self: flex-start; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 999px; padding: 2px 10px; }
+.status.live { background: rgba(34, 211, 238, 0.14); color: #67e8f9; }
+.status.live::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; margin-right: 6px; box-shadow: 0 0 8px #22d3ee; animation: blip 1.6s ease-in-out infinite; }
+@keyframes blip { 50% { opacity: 0.3; } }
+.status.next { background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+
+/* How */
+.how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 0; margin: 0; list-style: none; counter-reset: s; }
+.how li { counter-increment: s; background: color-mix(in srgb, var(--surface) 72%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+.how li::before {
+  content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #22d3ee, #8b5cf6); color: #ffffff; font-family: var(--font-display); font-weight: 800; margin-bottom: 10px;
+}
+.how b { display: block; font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 4px; }
+.how span { color: var(--muted); }
+
+/* Share */
+.share {
+  background: linear-gradient(120deg, #6d28d9, #8b5cf6 45%, #0e7490); color: #ffffff; box-shadow: 0 0 60px rgba(139, 92, 246, 0.35); border-radius: 20px; padding: 26px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+}
+.share h2 { color: inherit; }
+.share p { margin: 6px 0 0; opacity: 0.9; max-width: 52ch; }
+.share .btn { background: #ffffff; color: #4c1d95; border-color: #ffffff; }
+
+footer { padding: 30px 0 40px; color: var(--muted); font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+footer b { color: var(--ink); }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding-top: 10px; }
+  .hero { min-height: 0; }
+  .greeter { order: -1; max-width: 190px; }
+  .greeter { padding-top: 58px; }
+  .chip { font-size: 0.76rem; padding: 6px 9px; }
+  .chip.c1 { right: -26%; } .chip.c2 { left: -26%; } .chip.c3 { right: -22%; }
+  .floor { top: 520px; }
+  .bubble { top: 0; right: auto; left: 50%; translate: -50% 0; width: max-content; max-width: calc(100vw - 40px); flex-wrap: wrap; justify-content: center; text-align: center; font-size: 0.9rem; padding: 7px 12px; border-radius: 16px 16px 16px 16px; display: flex; gap: 6px; align-items: baseline; }
+  .bubble b { font-size: 1.1rem; }
+  .tools, .how { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="floor" aria-hidden="true"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="index.html" aria-label="AI Saathi home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="15" cy="20" r="11" fill="var(--accent)"></circle>
+        <circle cx="25" cy="20" r="11" fill="var(--sun)" opacity="0.9"></circle>
+        <path d="M20 11.5a11 11 0 0 1 0 17a11 11 0 0 1 0-17z" fill="var(--ink)" opacity="0.85"></path>
+      </svg>
+      <span>AI Saathi</span>
+    </a>
+    <nav class="langs" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="hi" aria-pressed="false">हिन्दी</button>
+      <button type="button" data-lang="es" aria-pressed="false">Español</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div>
+        <h1><span data-t="h1a">Free AI tools</span> <em data-t="h1b">for everyday people</em></h1>
+        <p data-t="lead">AI is changing work and life. AI Saathi gives you simple, free tools to keep up: check how AI affects your job, practise your English, and more coming soon.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#tools" data-t="cta1">See the tools</a>
+          <a class="btn ghost" href="#how" data-t="cta2">How it works</a>
+        </div>
+        <ul class="facts">
+          <li><b data-t="f1a">Free</b> <span data-t="f1b">to use</span></li>
+          <li><b>English</b> · <b>हिन्दी</b> · <b>Español</b></li>
+          <li><b data-t="f3a">Works on</b> <span data-t="f3b">your phone</span></li>
+        </ul>
+      </div>
+      <div class="greeter" id="greeter">
+        <p class="bubble"><b data-t="greetA">Namaste!</b><span data-t="greetB">Welcome to AI Saathi</span></p>
+        <span class="halo" aria-hidden="true"></span><span class="orbit" aria-hidden="true"></span><span class="orbit two" aria-hidden="true"></span>
+        <img class="lady-img" src="img/saathi-lady.webp" width="900" height="1493" alt="An Indian woman in a royal violet silk saree with gold border, greeting you with folded hands">
+        <span class="chip c1" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg><span data-t="chip1">Job check</span></span>
+        <span class="chip c2" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path></svg><span data-t="chip2">Speak English</span></span>
+        <span class="chip c3" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path></svg><span data-t="chip3">100% free</span></span>
+      </div>
+    </div>
+
+    <section id="tools" aria-labelledby="toolsH">
+      <div class="sechead">
+        <h2 id="toolsH" data-t="toolsH">The tools</h2>
+        <p data-t="toolsP">Pick one and start. No sign-up with us.</p>
+      </div>
+      <div class="tools">
+        <article class="tool peacock">
+          <span class="status live" data-t="live">Live</span>
+          <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg></div>
+          <h3>Ahead of AI <small>AI से आगे · AI Se Aage</small></h3>
+          <p data-t="t1p">Will AI change your job? Check your work task by task, see your score out of 10, and get a 12-week plan with free courses.</p>
+          <ul class="tags"><li data-t="t1g1">30 countries</li><li data-t="t1g2">5 languages</li><li data-t="t1g3">Free Claude account</li></ul>
+          <a class="btn primary" href="https://bit.ly/4f5xOIo" target="_blank" rel="noopener" data-t="t1b">Check my job</a>
+        </article>
+        <article class="tool sun">
+          <span class="status live" data-t="live">Live</span>
+          <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></div>
+          <h3 data-t="t2h">Talk English with Mr. Reed</h3>
+          <p data-t="t2p">Practise speaking English out loud on your phone. Mr. Reed corrects your mistakes as you talk and gives you a report card that shows your progress.</p>
+          <ul class="tags"><li data-t="t2g1">Voice on your phone</li><li data-t="t2g2">7 lessons</li><li data-t="t2g3">Report card</li></ul>
+          <a class="btn primary" href="english.html" data-t="t2b">Start speaking</a>
+        </article>
+        <article class="tool soon">
+          <span class="status next" data-t="next">Coming next</span>
+          <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+          <h3 data-t="t3h">Your idea here</h3>
+          <p data-t="t3p">New free tools are on the way. Tell us what would help you, your family or your community.</p>
+          <a class="btn ghost" href="https://wa.me/?text=Idea%20for%20AI%20Saathi%3A%20" target="_blank" rel="noopener" data-t="t3b">Suggest a tool</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="how" aria-labelledby="howH">
+      <div class="sechead"><h2 id="howH" data-t="howH">How it works</h2></div>
+      <ol class="how">
+        <li><b data-t="h1t">Pick a tool</b><span data-t="h1d">Each tool opens in the free Claude app or website, made by Anthropic.</span></li>
+        <li><b data-t="h2t">Use your own free account</b><span data-t="h2d">Sign in to Claude with a free account. Your use comes from your own account, so there is nothing to pay us.</span></li>
+        <li><b data-t="h3t">Learn and share</b><span data-t="h3d">Save your result or report card and share it with friends who could use it too.</span></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="shareH">
+      <div class="share">
+        <div>
+          <h2 id="shareH" data-t="shareH">Help someone get ahead</h2>
+          <p data-t="shareP">AI Saathi grows when people share it. Send it to a friend, a family WhatsApp group or your team.</p>
+        </div>
+        <a class="btn" id="waShare" href="https://wa.me/?text=Free%20AI%20tools%20for%20everyday%20people%3A%20AI%20Saathi" target="_blank" rel="noopener" data-t="shareB">Share on WhatsApp</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span><b>AI Saathi</b> · <span data-t="foot1">Made by Ramit Paul, Microsoft MVP</span></span>
+    <span data-t="foot2">Results from these tools are guidance from an AI model, not professional advice. Don't type names or confidential details.</span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* 3D background: a turning globe of people (points) joined by lines, sparks travelling between them, an AI core in the middle. */
+(function () {
+  "use strict";
+  var canvas = document.getElementById("bg");
+  if (!window.THREE || !canvas) return;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 26);
+
+  function cssColor(name) { return new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#0d6b5c"); }
+
+  var world = new THREE.Group(); scene.add(world);
+  var globe = new THREE.Group(); world.add(globe);
+
+  // dot texture
+  var dc = document.createElement("canvas"); dc.width = dc.height = 64;
+  var dx = dc.getContext("2d"), grad = dx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(0.35, "rgba(255,255,255,0.9)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+  dx.fillStyle = grad; dx.fillRect(0, 0, 64, 64);
+  var dot = new THREE.CanvasTexture(dc);
+
+  // nodes on a sphere (fibonacci), a share in the warm colour
+  var isPhone = window.innerWidth < 860;
+  var N = isPhone ? 70 : 120, R = 8.5, pts = [];
+  for (var i = 0; i < N; i++) {
+    var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.399963;
+    var jitter = 1 + (Math.random() - 0.5) * 0.12;
+    pts.push(new THREE.Vector3(Math.cos(th) * r * R * jitter, y * R * jitter, Math.sin(th) * r * R * jitter));
+  }
+  function makePoints(list, size) {
+    var g = new THREE.BufferGeometry().setFromPoints(list);
+    var m = new THREE.PointsMaterial({ size: size, map: dot, transparent: true, depthWrite: false, sizeAttenuation: true });
+    return new THREE.Points(g, m);
+  }
+  var cool = [], warm = [];
+  pts.forEach(function (p, i) { (i % 5 === 0 ? warm : cool).push(p); });
+  var coolPts = makePoints(cool, 0.55), warmPts = makePoints(warm, 0.75);
+  globe.add(coolPts); globe.add(warmPts);
+
+  // links to nearest neighbours
+  var edges = [], seen = {};
+  pts.forEach(function (p, i) {
+    var near = pts.map(function (q, j) { return { j: j, d: p.distanceToSquared(q) }; })
+      .filter(function (o) { return o.j !== i; }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3);
+    near.forEach(function (o) {
+      var k = i < o.j ? i + "-" + o.j : o.j + "-" + i;
+      if (!seen[k]) { seen[k] = 1; edges.push([i, o.j]); }
+    });
+  });
+  var lp = [];
+  edges.forEach(function (e) { lp.push(pts[e[0]], pts[e[1]]); });
+  var lineMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.28 });
+  globe.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lp), lineMat));
+
+  // AI core
+  var coreMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.55 });
+  var core = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2, 1), coreMat); world.add(core);
+  var innerMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.18 });
+  var inner = new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 0), innerMat); world.add(inner);
+
+  // sparks travelling along links
+  var S = isPhone ? 10 : 18, sparks = [], sparkPos = [];
+  for (var s2 = 0; s2 < S; s2++) { sparks.push({ e: edges[Math.floor(Math.random() * edges.length)], t: Math.random(), v: 0.004 + Math.random() * 0.008 }); sparkPos.push(new THREE.Vector3()); }
+  var sparkGeo = new THREE.BufferGeometry().setFromPoints(sparkPos);
+  var sparkMat = new THREE.PointsMaterial({ size: 0.9, map: dot, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  globe.add(new THREE.Points(sparkGeo, sparkMat));
+
+  // a soft ring of far dust
+  var dust = [];
+  for (var d = 0; d < (isPhone ? 120 : 240); d++) {
+    var a = Math.random() * Math.PI * 2, rr = 13 + Math.random() * 9;
+    dust.push(new THREE.Vector3(Math.cos(a) * rr, (Math.random() - 0.5) * 14, Math.sin(a) * rr - 6));
+  }
+  var dustPts = makePoints(dust, 0.22); scene.add(dustPts);
+
+  function recolor() {
+    var accent = cssColor("--accent"), sun = cssColor("--sun"), ink = cssColor("--ink"), peacock = cssColor("--peacock");
+    coolPts.material.color = new THREE.Color("#a78bfa"); warmPts.material.color = new THREE.Color("#22d3ee");
+    coolPts.material.blending = warmPts.material.blending = THREE.AdditiveBlending;
+    lineMat.color = new THREE.Color("#8b5cf6"); lineMat.opacity = 0.38; coreMat.color = new THREE.Color("#22d3ee"); innerMat.color = new THREE.Color("#f472d0");
+    sparkMat.color = new THREE.Color("#f472d0"); dustPts.material.color = new THREE.Color("#c4b5fd"); dustPts.material.opacity = 0.55;
+  }
+  recolor();
+  try {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", recolor);
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  } catch (e) {}
+
+  var greeter = document.getElementById("greeter"), hero = document.querySelector(".hero");
+  function resize() {
+    var w = document.documentElement.clientWidth;
+    isPhone = w < 860;
+    var heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : window.innerHeight;
+    var h = Math.max(heroBottom + 60, Math.min(window.innerHeight, 900));
+    canvas.style.height = h + "px";
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    var halfH0 = Math.tan(camera.fov * Math.PI / 360) * camera.position.z, halfW0 = halfH0 * camera.aspect;
+    if (greeter) {
+      var g = greeter.getBoundingClientRect(), top = g.top + window.scrollY;
+      var cx = g.left + g.width / 2, cy = top + g.height * 0.42;
+      var r = Math.max(g.width, g.height) * (isPhone ? 0.62 : 0.6);
+      world.position.set((cx / w * 2 - 1) * halfW0, -(cy / h * 2 - 1) * halfH0, 0);
+      world.scale.setScalar((r / (h / 2)) * halfH0 / 8.5);
+      canvas.style.opacity = "1";
+      return;
+    }
+    // globe sits right of the headline on wide screens, above it on phones
+    var halfH = Math.tan(camera.fov * Math.PI / 360) * camera.position.z, halfW = halfH * camera.aspect;
+    if (isPhone) { world.scale.setScalar(Math.min(0.42, (halfW * 0.78) / 8.5)); world.position.set(0, halfH * 0.41, 0); }
+    else { world.scale.setScalar(Math.min(0.74, (halfH * 0.62) / 8.5)); world.position.set(Math.min(halfW * 0.46, 9), halfH * 0.14, 0); }
+    canvas.style.opacity = isPhone ? "0.9" : "1";
+  }
+  window.addEventListener("load", resize);
+  window.addEventListener("resize", resize); resize();
+
+  var tx = 0, ty = 0, mx = 0, my = 0, scrollY = 0;
+  window.addEventListener("pointermove", function (e) { tx = (e.clientX / window.innerWidth - 0.5); ty = (e.clientY / window.innerHeight - 0.5); }, { passive: true });
+  window.addEventListener("scroll", function () { scrollY = window.scrollY || 0; }, { passive: true });
+
+  var running = true;
+  document.addEventListener("visibilitychange", function () { running = !document.hidden; if (running && !reduce) requestAnimationFrame(loop); });
+
+  var last = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    mx += (tx - mx) * 0.04; my += (ty - my) * 0.04;
+    globe.rotation.y += dt * 0.08;
+    world.rotation.x = 0.25 + my * 0.35 + scrollY * 0.0006;
+    world.rotation.y = mx * 0.6;
+    core.rotation.x += dt * 0.25; core.rotation.y -= dt * 0.18;
+    inner.rotation.y += dt * 0.5;
+    var pulse = 1 + Math.sin(now * 0.0016) * 0.06; inner.scale.setScalar(pulse);
+    var arr = sparkGeo.attributes.position.array;
+    sparks.forEach(function (sp, i) {
+      sp.t += sp.v;
+      if (sp.t > 1) { sp.t = 0; sp.e = edges[Math.floor(Math.random() * edges.length)]; }
+      var a = pts[sp.e[0]], b = pts[sp.e[1]];
+      arr[i * 3] = a.x + (b.x - a.x) * sp.t; arr[i * 3 + 1] = a.y + (b.y - a.y) * sp.t; arr[i * 3 + 2] = a.z + (b.z - a.z) * sp.t;
+    });
+    sparkGeo.attributes.position.needsUpdate = true;
+    dustPts.rotation.y -= dt * 0.01;
+    renderer.render(scene, camera);
+  }
+  function loop(now) { if (!running) return; frame(now); requestAnimationFrame(loop); }
+  if (reduce) { frame(performance.now()); window.addEventListener("resize", function () { frame(performance.now()); }); }
+  else requestAnimationFrame(loop);
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var T = {
+    en: {
+      greetA: "Namaste!", greetB: "Welcome to AI Saathi", chip1: "Job check", chip2: "Speak English", chip3: "100% free",
+      h1a: "Free AI tools", h1b: "for everyday people",
+      lead: "AI is changing work and life. AI Saathi gives you simple, free tools to keep up: check how AI affects your job, practise your English, and more coming soon.",
+      cta1: "See the tools", cta2: "How it works", f1a: "Free", f1b: "to use", f3a: "Works on", f3b: "your phone",
+      toolsH: "The tools", toolsP: "Pick one and start. No sign-up with us.", live: "Live", next: "Coming next",
+      t1p: "Will AI change your job? Check your work task by task, see your score out of 10, and get a 12-week plan with free courses.",
+      t1g1: "30 countries", t1g2: "5 languages", t1g3: "Free Claude account", t1b: "Check my job",
+      t2h: "Talk English with Mr. Reed",
+      t2p: "Practise speaking English out loud on your phone. Mr. Reed corrects your mistakes as you talk and gives you a report card that shows your progress.",
+      t2g1: "Voice on your phone", t2g2: "7 lessons", t2g3: "Report card", t2b: "Start speaking",
+      t3h: "Your idea here", t3p: "New free tools are on the way. Tell us what would help you, your family or your community.", t3b: "Suggest a tool",
+      howH: "How it works",
+      h1t: "Pick a tool", h1d: "Each tool opens in the free Claude app or website, made by Anthropic.",
+      h2t: "Use your own free account", h2d: "Sign in to Claude with a free account. Your use comes from your own account, so there is nothing to pay us.",
+      h3t: "Learn and share", h3d: "Save your result or report card and share it with friends who could use it too.",
+      shareH: "Help someone get ahead", shareP: "AI Saathi grows when people share it. Send it to a friend, a family WhatsApp group or your team.",
+      shareB: "Share on WhatsApp", shareText: "Free AI tools for everyday people: AI Saathi",
+      foot1: "Made by Ramit Paul, Microsoft MVP",
+      foot2: "Results from these tools are guidance from an AI model, not professional advice. Don't type names or confidential details."
+    },
+    hi: {
+      greetA: "नमस्ते!", greetB: "AI Saathi में आपका स्वागत है", chip1: "नौकरी जाँच", chip2: "अंग्रेज़ी बोलें", chip3: "100% मुफ़्त",
+      h1a: "मुफ़्त AI टूल्स", h1b: "हर किसी के लिए",
+      lead: "AI काम और ज़िंदगी को बदल रहा है। AI Saathi आपको आसान, मुफ़्त टूल्स देता है: देखें AI आपकी नौकरी पर कैसे असर डालता है, अपनी अंग्रेज़ी का अभ्यास करें, और भी बहुत कुछ जल्द आ रहा है।",
+      cta1: "टूल्स देखें", cta2: "कैसे काम करता है", f1a: "मुफ़्त", f1b: "इस्तेमाल", f3a: "चलता है", f3b: "आपके फ़ोन पर",
+      toolsH: "टूल्स", toolsP: "एक चुनें और शुरू करें। हमारे साथ कोई साइन-अप नहीं।", live: "चालू", next: "जल्द आ रहा है",
+      t1p: "क्या AI आपकी नौकरी बदल देगा? अपने काम को एक-एक काम करके जाँचें, 10 में से अपना स्कोर देखें, और मुफ़्त कोर्स के साथ 12 हफ़्ते का प्लान पाएँ।",
+      t1g1: "30 देश", t1g2: "5 भाषाएँ", t1g3: "मुफ़्त Claude अकाउंट", t1b: "मेरी नौकरी जाँचें",
+      t2h: "Mr. Reed के साथ अंग्रेज़ी बोलिए",
+      t2p: "अपने फ़ोन पर बोलकर अंग्रेज़ी का अभ्यास करें। Mr. Reed बातचीत के दौरान आपकी गलतियाँ सुधारते हैं और आपको एक रिपोर्ट कार्ड देते हैं जो आपकी प्रगति दिखाता है।",
+      t2g1: "फ़ोन पर आवाज़ से", t2g2: "7 पाठ", t2g3: "रिपोर्ट कार्ड", t2b: "बोलना शुरू करें",
+      t3h: "आपका आइडिया", t3p: "नए मुफ़्त टूल्स आ रहे हैं। बताइए आपको, आपके परिवार या आपके समुदाय को किस चीज़ से मदद मिलेगी।", t3b: "टूल सुझाएँ",
+      howH: "कैसे काम करता है",
+      h1t: "एक टूल चुनें", h1d: "हर टूल मुफ़्त Claude ऐप या वेबसाइट में खुलता है, जिसे Anthropic ने बनाया है।",
+      h2t: "अपना मुफ़्त अकाउंट इस्तेमाल करें", h2d: "मुफ़्त अकाउंट से Claude में साइन इन करें। इस्तेमाल आपके अपने अकाउंट से होता है, इसलिए हमें कुछ नहीं देना।",
+      h3t: "सीखें और शेयर करें", h3d: "अपना रिज़ल्ट या रिपोर्ट कार्ड सेव करें और उन दोस्तों के साथ शेयर करें जिन्हें इससे मदद मिल सकती है।",
+      shareH: "किसी को आगे बढ़ने में मदद करें", shareP: "AI Saathi तब बढ़ता है जब लोग इसे शेयर करते हैं। इसे किसी दोस्त, परिवार के WhatsApp ग्रुप या अपनी टीम को भेजें।",
+      shareB: "WhatsApp पर शेयर करें", shareText: "हर किसी के लिए मुफ़्त AI टूल्स: AI Saathi",
+      foot1: "Ramit Paul, Microsoft MVP द्वारा बनाया गया",
+      foot2: "इन टूल्स के नतीजे AI मॉडल का मार्गदर्शन हैं, पेशेवर सलाह नहीं। नाम या गोपनीय जानकारी न लिखें।"
+    },
+    es: {
+      greetA: "¡Namaste!", greetB: "Te damos la bienvenida a AI Saathi", chip1: "Revisa tu trabajo", chip2: "Habla inglés", chip3: "100% gratis",
+      h1a: "Herramientas de IA gratis", h1b: "para todo el mundo",
+      lead: "La IA está cambiando el trabajo y la vida. AI Saathi te da herramientas sencillas y gratis para seguir el ritmo: mira cómo la IA afecta a tu trabajo, practica tu inglés y pronto mucho más.",
+      cta1: "Ver las herramientas", cta2: "Cómo funciona", f1a: "Gratis", f1b: "para usar", f3a: "Funciona en", f3b: "tu móvil",
+      toolsH: "Las herramientas", toolsP: "Elige una y empieza. Sin registrarte con nosotros.", live: "Disponible", next: "Muy pronto",
+      t1p: "¿Cambiará la IA tu trabajo? Revisa tu trabajo tarea por tarea, mira tu nota sobre 10 y consigue un plan de 12 semanas con cursos gratis.",
+      t1g1: "30 países", t1g2: "5 idiomas", t1g3: "Cuenta gratis de Claude", t1b: "Revisar mi trabajo",
+      t2h: "Habla inglés con Mr. Reed",
+      t2p: "Practica hablar inglés en voz alta en tu móvil. Mr. Reed corrige tus errores mientras hablas y te da un boletín que muestra tu progreso.",
+      t2g1: "Voz en tu móvil", t2g2: "7 lecciones", t2g3: "Boletín de notas", t2b: "Empezar a hablar",
+      t3h: "Tu idea aquí", t3p: "Vienen nuevas herramientas gratis. Dinos qué te ayudaría a ti, a tu familia o a tu comunidad.", t3b: "Sugerir una herramienta",
+      howH: "Cómo funciona",
+      h1t: "Elige una herramienta", h1d: "Cada herramienta se abre en la app o la web gratuita de Claude, creada por Anthropic.",
+      h2t: "Usa tu propia cuenta gratis", h2d: "Inicia sesión en Claude con una cuenta gratis. El uso sale de tu propia cuenta, así que no nos pagas nada.",
+      h3t: "Aprende y comparte", h3d: "Guarda tu resultado o tu boletín y compártelo con amigos a quienes también les pueda servir.",
+      shareH: "Ayuda a alguien a salir adelante", shareP: "AI Saathi crece cuando la gente lo comparte. Envíalo a un amigo, al grupo de WhatsApp de la familia o a tu equipo.",
+      shareB: "Compartir por WhatsApp", shareText: "Herramientas de IA gratis para todo el mundo: AI Saathi",
+      foot1: "Creado por Ramit Paul, Microsoft MVP",
+      foot2: "Los resultados de estas herramientas son orientación de un modelo de IA, no asesoramiento profesional. No escribas nombres ni datos confidenciales."
+    }
+  };
+  var lang = "en";
+  function apply(l) {
+    lang = T[l] ? l : "en";
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach(function (n) { var v = T[lang][n.getAttribute("data-t")]; if (v) n.textContent = v; });
+    document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang)); });
+    var url = /^https?:/.test(location.href) && !/claude\.ai|claudeusercontent/.test(location.host) ? location.href.split("#")[0] : "";
+    document.getElementById("waShare").href = "https://wa.me/?text=" + encodeURIComponent(T[lang].shareText + (url ? " " + url : ""));
+    try { localStorage.setItem("talk-lang", lang); } catch (e) {}
+  }
+  document.querySelectorAll(".langs button").forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.getAttribute("data-lang")); });
+  });
+  var start = "en";
+  try { var s = localStorage.getItem("talk-lang"); if (s && T[s]) start = s; } catch (e) {}
+  apply(start);
+})();
+</script>
+</body>
+</html>

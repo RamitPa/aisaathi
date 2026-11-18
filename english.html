@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talk English with Mr. Reed · AI Saathi</title>
+<meta name="description" content="Practise speaking English out loud on your phone with Mr. Reed, a free AI teacher in the Claude app. Get corrected and get a report card.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one narrow phone column — pick your lesson, copy the teacher, follow three numbered steps. */
+:root {
+  --paper: #0c0820;
+  --surface: #171034;
+  --ink: #f4f0ff;
+  --muted: #b9addd;
+  --line: #34296a;
+  --accent: #8b5cf6;
+  --accent-ink: #ffffff;
+  --accent-soft: #241a52;
+  --sun: #f472d0;
+  --good: #4ade80;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: radial-gradient(900px 600px at 80% -10%, #2a1670, transparent 60%), var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.5; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+.sitebar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
+.logo svg { width: 34px; height: 34px; }
+.logo span { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+.langs { display: flex; gap: 6px; justify-content: flex-end; }
+.langs button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 4px 13px; font-size: 0.9rem; cursor: pointer;
+}
+.langs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+
+.hero { display: flex; gap: 14px; align-items: center; }
+.hero svg { width: 84px; height: 84px; flex: none; }
+.hero h1 { font-family: var(--font-display); font-size: 1.55rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+.hero p { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.card h2 { font-family: var(--font-display); font-size: 1.12rem; margin: 0; display: flex; gap: 10px; align-items: center; }
+.num {
+  width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; font-size: 0.95rem; font-family: var(--font-display);
+}
+.card p { margin: 0; }
+.muted { color: var(--muted); font-size: 0.93rem; }
+
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field label { font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.field select { width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+
+.copy {
+  width: 100%; border: none; border-radius: 12px; background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #ffffff; box-shadow: 0 0 24px rgba(139, 92, 246, 0.45);
+  font-weight: 700; font-size: 1.08rem; padding: 15px; cursor: pointer;
+}
+.copy.done { background: var(--good); }
+.copymsg { font-size: 0.9rem; color: var(--good); font-weight: 700; min-height: 1.4em; margin: 0; }
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; color: var(--accent); font-size: 0.93rem; }
+#promptBox {
+  margin-top: 8px; width: 100%; height: 190px; resize: vertical; font: 0.84rem/1.45 ui-monospace, Menlo, Consolas, monospace;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 10px;
+}
+.open {
+  display: block; text-align: center; text-decoration: none; border: 1px solid var(--accent); color: var(--accent);
+  border-radius: 12px; padding: 12px; font-weight: 700;
+}
+ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.wave {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent); vertical-align: middle; margin: 0 2px;
+}
+.wave svg { width: 15px; height: 15px; }
+.tips { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+.say { background: var(--accent-soft); border-radius: 6px; padding: 0 6px; font-weight: 700; }
+.report textarea {
+  width: 100%; height: 130px; resize: vertical; font: 0.88rem/1.45 ui-monospace, Menlo, Consolas, monospace;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 10px;
+}
+.make { width: 100%; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); border-radius: 12px; padding: 13px; font-weight: 700; cursor: pointer; }
+.cardimg { width: 100%; border-radius: 12px; border: 1px solid var(--line); display: block; }
+.improve { background: rgba(74, 222, 128, 0.12); color: #bbf7d0; border: 1px solid rgba(74, 222, 128, 0.4); border-radius: 12px; padding: 12px 14px; font-size: 0.95rem; }
+.improve ul { margin: 6px 0; padding-left: 20px; font-weight: 700; }
+.improve p { margin: 0; font-size: 0.85rem; opacity: 0.8; }
+.err { color: #fca5a5; font-size: 0.92rem; margin: 0; }
+footer { color: var(--muted); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sitebar">
+    <a class="logo" href="index.html" aria-label="AI Saathi home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="15" cy="20" r="11" fill="var(--accent)"></circle>
+        <circle cx="25" cy="20" r="11" fill="var(--sun)" opacity="0.9"></circle>
+        <path d="M20 11.5a11 11 0 0 1 0 17a11 11 0 0 1 0-17z" fill="var(--ink)" opacity="0.85"></path>
+      </svg>
+      <span>AI Saathi</span>
+    </a>
+  <nav class="langs" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="true">English</button>
+    <button type="button" data-lang="hi" aria-pressed="false">हिन्दी</button>
+    <button type="button" data-lang="es" aria-pressed="false">Español</button>
+  </nav>
+  </div>
+
+  <header class="hero">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="58" fill="var(--accent-soft)"></circle>
+      <path d="M20 120c2-23 18-31 40-31s38 8 40 31z" fill="var(--accent)"></path>
+      <path d="M51 91l9 10 9-10-9-4z" fill="var(--surface)"></path>
+      <rect x="53" y="75" width="14" height="17" rx="6" fill="#d9a67c"></rect>
+      <ellipse cx="60" cy="58" rx="22" ry="25" fill="#ebbd94"></ellipse>
+      <path d="M37 52c-2-16 9-26 23-26s25 10 23 26c-2-6-5-10-9-12-9 3-20 3-28 1-4 2-7 6-9 11z" fill="#2c2422"></path>
+      <g fill="none" stroke="#2c2422" stroke-width="2" stroke-linecap="round"><path d="M43.5 47.5q5.5-3 11 0"></path><path d="M65.5 47.5q5.5-3 11 0"></path></g>
+      <g fill="#1c1a19"><ellipse cx="49" cy="57" rx="2.6" ry="3.2"></ellipse><ellipse cx="71" cy="57" rx="2.6" ry="3.2"></ellipse></g>
+      <g fill="none" stroke="var(--accent)" stroke-width="1.8"><circle cx="49" cy="57" r="8"></circle><circle cx="71" cy="57" r="8"></circle><path d="M57 57h6"></path></g>
+      <path d="M52 70q8 6 16 0" fill="none" stroke="#8a3b34" stroke-width="2.3" stroke-linecap="round"></path>
+    </svg>
+    <div>
+      <h1 data-t="title">Talk English with Mr. Reed</h1>
+      <p data-t="sub">Practise speaking English out loud on your phone. Free with the Claude app.</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="num">1</span><span data-t="s1">Choose your lesson and copy your teacher</span></h2>
+    <div class="fields">
+      <div class="field wide">
+        <label for="lesson" data-t="lessonL">Lesson</label>
+        <select id="lesson">
+          <option value="free" data-t="l_free">Free conversation</option>
+          <option value="interview" data-t="l_interview">Job interview</option>
+          <option value="meeting" data-t="l_meeting">Work meeting</option>
+          <option value="cafe" data-t="l_cafe">At a café</option>
+          <option value="travel" data-t="l_travel">Travel and airport</option>
+          <option value="grammar" data-t="l_grammar">Grammar practice</option>
+          <option value="vocab" data-t="l_vocab">New words</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="level" data-t="levelL">Level</label>
+        <select id="level">
+          <option value="beginner" data-t="v_beg">Beginner</option>
+          <option value="intermediate" data-t="v_int" selected>Intermediate</option>
+          <option value="advanced" data-t="v_adv">Advanced</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="explain" data-t="explainL">Explain mistakes in</label>
+        <select id="explain">
+          <option value="English">English</option>
+          <option value="Hindi">हिन्दी</option>
+          <option value="Spanish">Español</option>
+        </select>
+      </div>
+    </div>
+    <button class="copy" id="copyBtn" type="button" data-t="copy">Copy teacher</button>
+    <p class="copymsg" id="copyMsg" aria-live="polite"></p>
+    <details>
+      <summary data-t="see">See or copy the text yourself</summary>
+      <textarea id="promptBox" readonly aria-label="Teacher instructions"></textarea>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span><span data-t="s2">Paste it into Claude</span></h2>
+    <ol class="steps">
+      <li data-t="s2a">Open the Claude app and start a new chat. Sign in or sign up for free if you are asked.</li>
+      <li data-t="s2b">Paste the text and send it.</li>
+    </ol>
+    <a class="open" href="https://claude.ai/new" target="_blank" rel="noopener" data-t="openBtn">Open Claude</a>
+    <p class="muted" data-t="s2c">Don't have the app? Get "Claude by Anthropic" from the App Store or Google Play.</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span><span data-t="s3">Start talking</span></h2>
+    <p>
+      <span data-t="s3a">In the same chat, tap the voice button</span>
+      <span class="wave" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"></path></svg></span>
+      <span data-t="s3b">next to the microphone, then say "Hello". Mr. Reed answers out loud and corrects you as you talk.</span>
+    </p>
+  </section>
+
+  <section class="card report">
+    <h2><span class="num">4</span><span data-t="s4">Get your report card</span></h2>
+    <p data-t="s4a">When you finish, say "Give me my report". Press and hold Mr. Reed's report message in Claude, copy it, and paste it here.</p>
+    <textarea id="reportIn" aria-label="Paste your report" data-ph="s4ph" placeholder="Paste your report from Claude here"></textarea>
+    <button class="make" id="makeBtn" type="button" data-t="s4btn">Make my report card</button>
+    <p class="err" id="reportErr" hidden></p>
+    <div class="improve" id="improveBox" aria-live="polite" hidden></div>
+    <img class="cardimg" id="cardImg" alt="Your English report card" hidden>
+    <button class="copy" id="saveBtn" type="button" data-t="s4save" hidden>Save image</button>
+    <p class="muted" id="saveHint" data-t="s4hint" hidden>Press and hold the image to save it or share it on WhatsApp.</p>
+  </section>
+
+  <section class="card">
+    <h2 data-t="tipsH">Tips</h2>
+    <ul class="tips">
+      <li><span data-t="t1">Didn't understand? Say</span> <span class="say">"Please say that again slowly."</span></li>
+      <li><span data-t="t2">At the end, say</span> <span class="say">"Give me my report."</span> <span data-t="t2b">He gives you your scores, mistakes and new words. Then do step 4.</span></li>
+      <li data-t="t3">Practise again tomorrow in the same chat, so he remembers you.</li>
+      <li data-t="t4">On the free Claude plan you get a limited number of voice messages, so after a while you may need to wait before continuing.</li>
+    </ul>
+  </section>
+
+  <footer><span data-t="foot">Uses your own Claude account. Nothing is paid to anyone else.</span><br><a href="index.html" data-t="more">More free tools on AI Saathi</a></footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var T = {
+    en: {
+      title: "Talk English with Mr. Reed", sub: "Practise speaking English out loud on your phone. Free with the Claude app.",
+      s1: "Choose your lesson and copy your teacher", lessonL: "Lesson", levelL: "Level", explainL: "Explain mistakes in",
+      l_free: "Free conversation", l_interview: "Job interview", l_meeting: "Work meeting", l_cafe: "At a café",
+      l_travel: "Travel and airport", l_grammar: "Grammar practice", l_vocab: "New words",
+      v_beg: "Beginner", v_int: "Intermediate", v_adv: "Advanced",
+      copy: "Copy teacher", copied: "Copied. Now do step 2.", copyFail: "Copy didn't work. Open the box below and copy the text yourself.",
+      see: "See or copy the text yourself",
+      s2: "Paste it into Claude", s2a: "Open the Claude app and start a new chat. Sign in or sign up for free if you are asked.",
+      s2b: "Paste the text and send it.", openBtn: "Open Claude",
+      s2c: "Don't have the app? Get \"Claude by Anthropic\" from the App Store or Google Play.",
+      s3: "Start talking", s3a: "In the same chat, tap the voice button",
+      s3b: "next to the microphone, then say \"Hello\". Mr. Reed answers out loud and corrects you as you talk.",
+      tipsH: "Tips", t1: "Didn't understand? Say", t2: "At the end, say", t2b: "He gives you your scores, mistakes and new words. Then do step 4.",
+      t3: "Practise again tomorrow in the same chat, so he remembers you.",
+      t4: "On the free Claude plan you get a limited number of voice messages, so after a while you may need to wait before continuing.",
+      foot: "Uses your own Claude account. Nothing is paid to anyone else.", more: "More free tools on AI Saathi",
+      s4: "Get your report card", s4a: "When you finish, say \"Give me my report\". Press and hold Mr. Reed's report message in Claude, copy it, and paste it here.",
+      s4ph: "Paste your report from Claude here", s4btn: "Make my report card", s4save: "Save image",
+      s4hint: "Press and hold the image to save it or share it on WhatsApp.",
+      s4err: "I couldn't find the report. Make sure you copied the message that starts with REPORT and has the scores.",
+      s4saved: "Saved", s4savefail: "Saving didn't work here. Press and hold the image instead.",
+      impHead: "Well done! You improved since your last report:", impNote: "Your progress is remembered on this phone, in this browser."
+    },
+    hi: {
+      title: "Mr. Reed के साथ अंग्रेज़ी बोलिए", sub: "अपने फ़ोन पर बोलकर अंग्रेज़ी का अभ्यास करें। Claude ऐप के साथ मुफ़्त।",
+      s1: "अपना पाठ चुनें और टीचर को कॉपी करें", lessonL: "पाठ", levelL: "स्तर", explainL: "गलतियाँ इस भाषा में समझाएँ",
+      l_free: "खुली बातचीत", l_interview: "नौकरी का इंटरव्यू", l_meeting: "ऑफ़िस मीटिंग", l_cafe: "कैफ़े में",
+      l_travel: "यात्रा और एयरपोर्ट", l_grammar: "व्याकरण अभ्यास", l_vocab: "नए शब्द",
+      v_beg: "शुरुआती", v_int: "मध्यम", v_adv: "उन्नत",
+      copy: "टीचर कॉपी करें", copied: "कॉपी हो गया। अब स्टेप 2 करें।", copyFail: "कॉपी नहीं हुआ। नीचे का बॉक्स खोलें और टेक्स्ट खुद कॉपी करें।",
+      see: "टेक्स्ट देखें या खुद कॉपी करें",
+      s2: "इसे Claude में पेस्ट करें", s2a: "Claude ऐप खोलें और नई चैट शुरू करें। पूछे जाने पर साइन इन करें या मुफ़्त में साइन अप करें।",
+      s2b: "टेक्स्ट पेस्ट करें और भेजें।", openBtn: "Claude खोलें",
+      s2c: "ऐप नहीं है? App Store या Google Play से \"Claude by Anthropic\" डाउनलोड करें।",
+      s3: "बोलना शुरू करें", s3a: "उसी चैट में माइक के पास वाला वॉइस बटन दबाएँ",
+      s3b: "और \"Hello\" बोलें। Mr. Reed बोलकर जवाब देंगे और बातचीत के दौरान आपकी गलतियाँ सुधारेंगे।",
+      tipsH: "सुझाव", t1: "समझ नहीं आया? बोलें", t2: "आख़िर में बोलें", t2b: "वे आपके स्कोर, गलतियाँ और नए शब्द बताएँगे। फिर स्टेप 4 करें।",
+      t3: "कल फिर उसी चैट में अभ्यास करें, ताकि उन्हें आप याद रहें।",
+      t4: "Claude के मुफ़्त प्लान में वॉइस मैसेज सीमित हैं, इसलिए कुछ देर बाद आपको रुकना पड़ सकता है।",
+      foot: "इसमें आपका अपना Claude अकाउंट इस्तेमाल होता है। किसी और को कोई पैसा नहीं जाता।", more: "AI Saathi पर और मुफ़्त टूल्स",
+      s4: "अपना रिपोर्ट कार्ड पाएँ", s4a: "अभ्यास पूरा होने पर बोलें \"Give me my report\"। Claude में Mr. Reed के रिपोर्ट मैसेज को दबाकर रखें, कॉपी करें और यहाँ पेस्ट करें।",
+      s4ph: "Claude से अपनी रिपोर्ट यहाँ पेस्ट करें", s4btn: "मेरा रिपोर्ट कार्ड बनाएँ", s4save: "इमेज सेव करें",
+      s4hint: "इमेज को दबाकर रखें और सेव करें या WhatsApp पर शेयर करें।",
+      s4err: "रिपोर्ट नहीं मिली। पक्का करें कि आपने वह मैसेज कॉपी किया है जो REPORT से शुरू होता है और जिसमें स्कोर हैं।",
+      s4saved: "सेव हो गया", s4savefail: "यहाँ सेव नहीं हुआ। इमेज को दबाकर रखें।",
+      impHead: "शाबाश! पिछली रिपोर्ट से आपने सुधार किया है:", impNote: "आपकी प्रगति इसी फ़ोन और इसी ब्राउज़र में याद रखी जाती है।"
+    },
+    es: {
+      title: "Habla inglés con Mr. Reed", sub: "Practica hablar inglés en voz alta en tu móvil. Gratis con la app de Claude.",
+      s1: "Elige tu lección y copia a tu profesor", lessonL: "Lección", levelL: "Nivel", explainL: "Explicar errores en",
+      l_free: "Conversación libre", l_interview: "Entrevista de trabajo", l_meeting: "Reunión de trabajo", l_cafe: "En una cafetería",
+      l_travel: "Viajes y aeropuerto", l_grammar: "Práctica de gramática", l_vocab: "Palabras nuevas",
+      v_beg: "Principiante", v_int: "Intermedio", v_adv: "Avanzado",
+      copy: "Copiar profesor", copied: "Copiado. Ahora haz el paso 2.", copyFail: "No se pudo copiar. Abre el cuadro de abajo y copia el texto tú mismo.",
+      see: "Ver o copiar el texto tú mismo",
+      s2: "Pégalo en Claude", s2a: "Abre la app de Claude y empieza un chat nuevo. Inicia sesión o regístrate gratis si te lo pide.",
+      s2b: "Pega el texto y envíalo.", openBtn: "Abrir Claude",
+      s2c: "¿No tienes la app? Descarga \"Claude by Anthropic\" en App Store o Google Play.",
+      s3: "Empieza a hablar", s3a: "En el mismo chat, toca el botón de voz",
+      s3b: "junto al micrófono y di \"Hello\". Mr. Reed responde en voz alta y te corrige mientras hablas.",
+      tipsH: "Consejos", t1: "¿No entendiste? Di", t2: "Al final, di", t2b: "Te dará tus notas, errores y palabras nuevas. Luego haz el paso 4.",
+      t3: "Practica otra vez mañana en el mismo chat, para que te recuerde.",
+      t4: "En el plan gratuito de Claude los mensajes de voz son limitados, así que después de un rato puede que tengas que esperar.",
+      foot: "Usa tu propia cuenta de Claude. No se paga nada a nadie más.", more: "Más herramientas gratis en AI Saathi",
+      s4: "Consigue tu boletín de notas", s4a: "Al terminar, di \"Give me my report\". Mantén pulsado el mensaje del informe de Mr. Reed en Claude, cópialo y pégalo aquí.",
+      s4ph: "Pega aquí tu informe de Claude", s4btn: "Crear mi boletín", s4save: "Guardar imagen",
+      s4hint: "Mantén pulsada la imagen para guardarla o compartirla por WhatsApp.",
+      s4err: "No encontré el informe. Asegúrate de copiar el mensaje que empieza con REPORT y tiene las notas.",
+      s4saved: "Guardado", s4savefail: "No se pudo guardar aquí. Mantén pulsada la imagen.",
+      impHead: "¡Muy bien! Has mejorado desde tu último informe:", impNote: "Tu progreso se guarda en este móvil, en este navegador."
+    }
+  };
+  var LESSONS = {
+    free: "an open, friendly conversation about my day, my work, my family and my interests",
+    interview: "a job interview: you are the interviewer, asking common interview questions one at a time",
+    meeting: "a work meeting: you are my colleague; practise giving updates, agreeing, disagreeing politely and asking for clarification",
+    cafe: "a role-play in a café: you are the barista and I am the customer",
+    travel: "travel role-plays: airport check-in, then immigration, then hotel reception; you play the staff",
+    grammar: "short speaking drills on one grammar point at a time (past tense, present perfect, articles, prepositions, conditionals); move on after two or three good answers",
+    vocab: "learning useful new words: give me one word with a simple meaning, ask me to use it in a sentence, then give the next word"
+  };
+  var LEVELS = {
+    beginner: "beginner: speak slowly, use very short sentences and only common words",
+    intermediate: "intermediate: use natural everyday English",
+    advanced: "advanced: use richer vocabulary and idioms, and also correct things that are grammatical but sound unnatural"
+  };
+  var lang = "en";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function buildPrompt() {
+    var explain = $("explain").value;
+    var why = explain === "English" ? "one short reason" : "one short reason in " + explain;
+    return [
+      "You are Mr. Reed, my friendly and patient English teacher. We are in a SPOKEN lesson in voice mode, so talk naturally and keep every reply short: two or three sentences.",
+      "",
+      "Lesson: " + LESSONS[$("lesson").value] + ".",
+      "My level: " + LEVELS[$("level").value] + ".",
+      "",
+      "Rules:",
+      "1. When I make a real mistake in grammar or word choice, first say: \"Small correction: you said ..., better: ...\", then give " + why + ". Correct at most two mistakes per answer.",
+      "2. Ignore small speech-recognition errors and pronunciation that the transcript can't show.",
+      "3. If I said it well, sometimes say \"Well said!\" and carry on.",
+      "4. After the correction, react to what I said and always end with one question, so I keep speaking.",
+      "5. Speak only English, except for the short reason in rule 1" + (explain === "English" ? "" : " (in " + explain + ")") + ". If I don't understand, repeat more slowly with simpler words.",
+      "6. If I say \"Give me my report\", say one encouraging sentence, then write exactly this block in plain text and fill it in honestly from our whole lesson (scores are whole numbers from 1 to 10):",
+      "REPORT",
+      "Lesson: <lesson name>",
+      "Fluency: <n>/10",
+      "Grammar: <n>/10",
+      "Vocabulary: <n>/10",
+      "Answers: <number of answers I gave>",
+      "Mistakes: <number of mistakes you corrected>",
+      "Fix: <what I said> -> <better>",
+      "Fix: <what I said> -> <better>",
+      "Fix: <what I said> -> <better>",
+      "Words: <up to 5 new or useful words, comma separated>",
+      "Goal: <one goal for next time, under 10 words>",
+      "Better: <only if there is an earlier REPORT in this chat and I really improved: what got better, under 10 words; otherwise leave this line out>",
+      "END",
+      "7. Apart from the report, never use lists, bullet points or emoji while we talk, because your words are read aloud.",
+      "",
+      "Start now: introduce yourself in one sentence and ask me your first question."
+    ].join("\n");
+  }
+  function refresh() { $("promptBox").value = buildPrompt(); $("copyMsg").textContent = ""; $("copyBtn").classList.remove("done"); $("copyBtn").textContent = T[lang].copy; }
+
+  function applyLang(l) {
+    lang = T[l] ? l : "en";
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach(function (n) { var v = T[lang][n.getAttribute("data-t")]; if (v) n.textContent = v; });
+    document.querySelectorAll("[data-ph]").forEach(function (n) { var v = T[lang][n.getAttribute("data-ph")]; if (v) n.placeholder = v; });
+    document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang)); });
+    try { localStorage.setItem("talk-lang", lang); } catch (e) {}
+    refresh();
+  }
+  document.querySelectorAll(".langs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var l = b.getAttribute("data-lang");
+      var map = { en: "English", hi: "Hindi", es: "Spanish" };
+      $("explain").value = map[l];
+      applyLang(l);
+    });
+  });
+  ["lesson", "level", "explain"].forEach(function (id) { $(id).addEventListener("change", refresh); });
+
+  function fallbackCopy() {
+    var box = $("promptBox");
+    box.closest("details").open = true;
+    box.focus(); box.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    return ok;
+  }
+  function showCopied(ok) {
+    var btn = $("copyBtn");
+    if (ok) { btn.classList.add("done"); btn.textContent = "✓ " + T[lang].copy; $("copyMsg").textContent = T[lang].copied; }
+    else { $("copyMsg").textContent = T[lang].copyFail; $("promptBox").closest("details").open = true; }
+  }
+  $("copyBtn").addEventListener("click", function () {
+    var text = buildPrompt();
+    try {
+      navigator.clipboard.writeText(text).then(function () { showCopied(true); }, function () { showCopied(fallbackCopy()); });
+    } catch (e) { showCopied(fallbackCopy()); }
+  });
+
+  /* ---------- Report card ---------- */
+  var CARD = {
+    en: { head: "My English report card", fl: "Fluency", gr: "Grammar", vo: "Vocabulary", overall: "Overall", ans: "answers", mis: "corrections", fixes: "Mistakes I fixed", words: "New words", goal: "Next goal", foot: "Practised out loud with Mr. Reed", better: "Better than last time" },
+    hi: { head: "मेरा अंग्रेज़ी रिपोर्ट कार्ड", fl: "धाराप्रवाह", gr: "व्याकरण", vo: "शब्दावली", overall: "कुल", ans: "जवाब", mis: "सुधार", fixes: "मैंने ये गलतियाँ सुधारीं", words: "नए शब्द", goal: "अगला लक्ष्य", foot: "Mr. Reed के साथ बोलकर अभ्यास किया", better: "पिछली बार से बेहतर" },
+    es: { head: "Mi boletín de inglés", fl: "Fluidez", gr: "Gramática", vo: "Vocabulario", overall: "Total", ans: "respuestas", mis: "correcciones", fixes: "Errores que corregí", words: "Palabras nuevas", goal: "Próxima meta", foot: "Practicado en voz alta con Mr. Reed", better: "Mejor que la última vez" }
+  };
+  function parseReport(raw) {
+    var txt = String(raw || "").replace(/\r/g, "").replace(/[*_`#]/g, "");
+    var get = function (k) { var m = txt.match(new RegExp("^\\s*" + k + "\\s*:\\s*(.+)$", "im")); return m ? m[1].trim() : ""; };
+    var score = function (k) { var m = get(k).match(/(\d+(?:\.\d+)?)/); if (!m) return null; return Math.max(0, Math.min(10, Math.round(parseFloat(m[1])))); };
+    var r = { lesson: get("Lesson"), fl: score("Fluency"), gr: score("Grammar"), vo: score("Vocabulary"),
+      ans: (get("Answers").match(/\d+/) || [""])[0], mis: (get("Mistakes").match(/\d+/) || [""])[0],
+      words: get("Words").split(/[,;]/).map(function (w) { return w.trim(); }).filter(Boolean).slice(0, 5),
+      goal: get("Goal"), better: get("Better"), fixes: [] };
+    var re = /^\s*Fix\s*:\s*(.+?)\s*(?:->|→|=>)\s*(.+)$/gim, m;
+    while ((m = re.exec(txt)) && r.fixes.length < 3) r.fixes.push([m[1].replace(/^["“]|["”]$/g, ""), m[2].replace(/^["“]|["”]$/g, "")]);
+    if (r.fl === null && r.gr === null && r.vo === null) return null;
+    return r;
+  }
+  function wrap(ctx, text, x, y, maxW, lh, maxLines) {
+    var words = String(text).split(/\s+/), line = "", lines = 0;
+    for (var i = 0; i < words.length; i++) {
+      var test = line ? line + " " + words[i] : words[i];
+      if (ctx.measureText(test).width > maxW && line) {
+        if (lines === maxLines - 1) { while (ctx.measureText(line + "…").width > maxW && line) line = line.slice(0, -1); ctx.fillText(line + "…", x, y); return y + lh; }
+        ctx.fillText(line, x, y); y += lh; lines++; line = words[i];
+      } else line = test;
+    }
+    if (line) { ctx.fillText(line, x, y); y += lh; }
+    return y;
+  }
+  function drawCard(r, delta, improved) {
+    delta = delta || {};
+    var L = CARD[lang] || CARD.en;
+    var W = 1080, H = 1350, c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    var ctx = c.getContext("2d");
+    var D = '"Bricolage Grotesque", "Trebuchet MS", sans-serif', B = '"Atkinson Hyperlegible", "Segoe UI", sans-serif';
+    ctx.fillStyle = "#1a0f45"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#4c1d95"; ctx.beginPath(); ctx.arc(W - 60, 80, 260, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.textBaseline = "alphabetic";
+    ctx.font = "700 66px " + D; ctx.fillText(L.head, 70, 150);
+    ctx.font = "32px " + B; ctx.fillStyle = "#d8ccff";
+    var date = new Date().toLocaleDateString(lang === "hi" ? "hi-IN" : lang === "es" ? "es-ES" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+    ctx.fillText((r.lesson ? r.lesson + "  ·  " : "") + date, 70, 205);
+
+    var scores = [[L.fl, r.fl, delta.fl], [L.gr, r.gr, delta.gr], [L.vo, r.vo, delta.vo]].filter(function (s) { return s[1] !== null; });
+    var avg = scores.reduce(function (a, s) { return a + s[1]; }, 0) / scores.length;
+    // overall badge
+    ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(890, 330, 105, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#1a0f45"; ctx.textAlign = "center";
+    ctx.font = "700 92px " + D; ctx.fillText(avg.toFixed(1).replace(/\.0$/, ""), 890, 350);
+    ctx.font = "700 26px " + B; ctx.fillText(L.overall + " /10", 890, 392);
+    if (improved) {
+      var pt = "\u2191 " + L.better, fs = 26;
+      do { ctx.font = "700 " + fs + "px " + B; fs--; } while (ctx.measureText(pt).width + 36 > 300 && fs > 16);
+      var pw = ctx.measureText(pt).width + 36;
+      ctx.fillStyle = "#84d490"; ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(890 - pw / 2, 458, pw, 52, 26); else ctx.rect(890 - pw / 2, 458, pw, 52);
+      ctx.fill();
+      ctx.fillStyle = "#1a0f45"; ctx.fillText(pt, 890, 494);
+    }
+    ctx.textAlign = "left";
+    // bars
+    var y = 290;
+    scores.forEach(function (s) {
+      ctx.fillStyle = "#ffffff"; ctx.font = "700 34px " + B; ctx.fillText(s[0], 70, y);
+      if (s[2] > 0) {
+        var lw = ctx.measureText(s[0]).width;
+        ctx.fillStyle = "#84d490"; ctx.font = "700 30px " + B; ctx.fillText("+" + s[2], 70 + lw + 16, y);
+      }
+      ctx.fillStyle = "#d8ccff"; ctx.font = "700 34px " + D; ctx.textAlign = "right"; ctx.fillText(s[1] + "/10", 720, y); ctx.textAlign = "left";
+      ctx.fillStyle = "#3b2a7a"; ctx.fillRect(70, y + 16, 650, 18);
+      ctx.fillStyle = s[1] >= 7 ? "#84d490" : s[1] >= 4 ? "#f2c94c" : "#f2978a"; ctx.fillRect(70, y + 16, 65 * s[1], 18);
+      y += 86;
+    });
+    if (r.ans || r.mis) {
+      ctx.fillStyle = "#d8ccff"; ctx.font = "30px " + B;
+      ctx.fillText([r.ans ? r.ans + " " + L.ans : "", r.mis ? r.mis + " " + L.mis : ""].filter(Boolean).join("   ·   "), 70, y + 10);
+      y += 60;
+    }
+    // white panel
+    var py = Math.max(y + 10, 600);
+    ctx.fillStyle = "#ffffff"; ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(40, py, W - 80, H - py - 110, 28); else ctx.rect(40, py, W - 80, H - py - 110);
+    ctx.fill();
+    var x = 90; y = py + 75;
+    if (r.fixes.length) {
+      ctx.fillStyle = "#55666e"; ctx.font = "700 28px " + B; ctx.fillText(L.fixes.toUpperCase(), x, y); y += 54;
+      r.fixes.forEach(function (f) {
+        ctx.font = "32px " + B; ctx.fillStyle = "#b3372a";
+        var said = f[0].length > 34 ? f[0].slice(0, 33) + "…" : f[0];
+        ctx.fillText(said, x, y);
+        var w = ctx.measureText(said).width;
+        ctx.strokeStyle = "#b3372a"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, y - 10); ctx.lineTo(x + w, y - 10); ctx.stroke();
+        y += 40;
+        ctx.fillStyle = "#2a7436"; ctx.font = "700 32px " + B;
+        y = wrap(ctx, "→ " + f[1], x, y, W - 180, 40, 2) + 12;
+      });
+      y += 6;
+    }
+    if (r.words.length) {
+      ctx.fillStyle = "#55666e"; ctx.font = "700 28px " + B; ctx.fillText(L.words.toUpperCase(), x, y); y += 18;
+      var cx = x, cy = y;
+      ctx.font = "700 30px " + B;
+      r.words.forEach(function (w) {
+        var tw = ctx.measureText(w).width + 44;
+        if (cx + tw > W - 90) { cx = x; cy += 70; }
+        ctx.fillStyle = "#f6e3a1"; ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(cx, cy, tw, 54, 27); else ctx.rect(cx, cy, tw, 54);
+        ctx.fill();
+        ctx.fillStyle = "#132229"; ctx.fillText(w, cx + 22, cy + 37);
+        cx += tw + 14;
+      });
+      y = cy + 98;
+    }
+    if (r.goal && y < H - 175) {
+      ctx.fillStyle = "#55666e"; ctx.font = "700 28px " + B; ctx.fillText(L.goal.toUpperCase(), x, y); y += 46;
+      ctx.fillStyle = "#132229"; ctx.font = "32px " + B; wrap(ctx, r.goal, x, y, W - 180, 40, Math.max(1, Math.floor((H - 130 - y) / 40) + 1));
+    }
+    ctx.fillStyle = "#d8ccff"; ctx.font = "30px " + B; ctx.textAlign = "center";
+    ctx.fillText(L.foot + "  ·  AI Saathi", W / 2, H - 50);
+    ctx.textAlign = "left";
+    return c;
+  }
+  var lastBlob = null, downloads = null;
+  function loadHistory() { try { var h = JSON.parse(localStorage.getItem("talk-reports") || "[]"); return Array.isArray(h) ? h : []; } catch (e) { return []; } }
+  function saveHistory(h) { try { localStorage.setItem("talk-reports", JSON.stringify(h.slice(-30))); } catch (e) {} }
+  function sameScores(a, b) { return a && b && a.fl === b.fl && a.gr === b.gr && a.vo === b.vo && a.mis === b.mis && a.lesson === b.lesson; }
+  (function waitForDownloads(tries) {
+    if (window.claude && typeof window.claude.use === "function") {
+      Promise.resolve(window.claude.use("downloads")).then(function (d) {
+        downloads = d || null;
+        if (downloads && !$("cardImg").hidden) $("saveBtn").hidden = false;
+      }, function () {});
+    } else if (tries < 40) setTimeout(function () { waitForDownloads(tries + 1); }, 150);
+  })(0);
+  $("makeBtn").addEventListener("click", function () {
+    var r = parseReport($("reportIn").value);
+    var err = $("reportErr");
+    if (!r) { err.textContent = T[lang].s4err; err.hidden = false; return; }
+    err.hidden = true;
+    var hist = loadHistory();
+    var entry = { fl: r.fl, gr: r.gr, vo: r.vo, mis: r.mis, lesson: r.lesson, at: Date.now() };
+    if (sameScores(hist[hist.length - 1], entry)) hist.pop();
+    var prev = hist[hist.length - 1] || null;
+    var delta = {}, ups = [], Lc = CARD[lang] || CARD.en;
+    if (prev) {
+      [["fl", Lc.fl], ["gr", Lc.gr], ["vo", Lc.vo]].forEach(function (k) {
+        if (r[k[0]] !== null && prev[k[0]] !== null && prev[k[0]] !== undefined && r[k[0]] > prev[k[0]]) {
+          delta[k[0]] = r[k[0]] - prev[k[0]];
+          ups.push(k[1] + ": " + prev[k[0]] + " \u2192 " + r[k[0]]);
+        }
+      });
+    }
+    if (!ups.length && r.better) ups.push(r.better);
+    var improved = ups.length > 0;
+    hist.push(entry); saveHistory(hist);
+    var box = $("improveBox");
+    box.textContent = "";
+    if (improved) {
+      box.appendChild(document.createElement("strong")).textContent = T[lang].impHead;
+      var ul = box.appendChild(document.createElement("ul"));
+      ups.forEach(function (u) { ul.appendChild(document.createElement("li")).textContent = u; });
+      box.appendChild(document.createElement("p")).textContent = T[lang].impNote;
+    }
+    box.hidden = !improved;
+    var go = function () {
+      var c = drawCard(r, delta, improved);
+      $("cardImg").src = c.toDataURL("image/png");
+      $("cardImg").hidden = false; $("saveHint").hidden = false;
+      $("saveBtn").textContent = T[lang].s4save;
+      $("saveBtn").hidden = false;
+      lastBlob = null;
+      try { c.toBlob(function (b) { lastBlob = b; }, "image/png"); } catch (e) {}
+      $("cardImg").scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go, go); else go();
+  });
+  $("saveBtn").addEventListener("click", function () {
+    var btn = $("saveBtn");
+    if (!lastBlob) { $("saveHint").textContent = T[lang].s4savefail; return; }
+    if (!downloads) {
+      try {
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(lastBlob); a.download = "english-report-card.png";
+        document.body.appendChild(a); a.click(); a.remove();
+        btn.textContent = "\u2713 " + T[lang].s4saved;
+      } catch (e) { $("saveHint").textContent = T[lang].s4savefail; }
+      return;
+    }
+    Promise.resolve(downloads.save({ filename: "english-report-card.png", data: lastBlob })).then(function () {
+      btn.textContent = "\u2713 " + T[lang].s4saved;
+    }, function () { $("saveHint").textContent = T[lang].s4savefail; });
+  });
+
+  var start = "en";
+  try { var saved = localStorage.getItem("talk-lang"); if (saved && T[saved]) start = saved; } catch (e) {}
+  if (start !== "en") $("explain").value = { hi: "Hindi", es: "Spanish" }[start];
+  applyLang(start);
+})();
+</script>
+</body>
+</html>
