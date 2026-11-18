@@ -514,12 +514,12 @@ footer b { color: var(--ink); }
     var geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(gp, 3));
     geo.setAttribute("color", new THREE.BufferAttribute(gc, 3));
-    var mat = new THREE.PointsMaterial({ size: 0.34, map: dot, vertexColors: true, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending });
+    var mat = new THREE.PointsMaterial({ size: 0.26, map: dot, vertexColors: true, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending });
     galaxy.add(new THREE.Points(geo, mat));
     var cc = document.createElement("canvas"); cc.width = cc.height = 128; var cx2 = cc.getContext("2d");
     var gg = cx2.createRadialGradient(64, 64, 0, 64, 64, 64); gg.addColorStop(0, "rgba(255,226,184,0.9)"); gg.addColorStop(0.35, "rgba(196,181,253,0.35)"); gg.addColorStop(1, "rgba(91,33,182,0)");
     cx2.fillStyle = gg; cx2.fillRect(0, 0, 128, 128);
-    var core = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    var core = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
     core.rotation.x = -Math.PI / 2; galaxy.add(core);
   })();
   galaxy.rotation.set(0.78, 0, 0.5);
@@ -582,7 +582,7 @@ footer b { color: var(--ink); }
       world.position.set((cx / w * 2 - 1) * halfW0, -(cy / h * 2 - 1) * halfH0, 0);
       world.scale.setScalar((r / (h / 2)) * halfH0 / 8.5);
       var depth = (camera.position.z + 45) / camera.position.z;
-      galaxy.position.set(world.position.x * depth - (isPhone ? 4 : 16), world.position.y * depth + (isPhone ? 10 : 9), -45);
+      galaxy.position.set(world.position.x * depth + (isPhone ? 0 : 2), world.position.y * depth + (isPhone ? 12 : 11), -45);
       galaxy.scale.setScalar(isPhone ? 0.7 : 1);
       canvas.style.opacity = "1";
       return;
